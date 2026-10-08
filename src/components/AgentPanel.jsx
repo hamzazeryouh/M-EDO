@@ -32,9 +32,7 @@ export default function AgentPanel({
   shotsWithVoice,
   activeStepId,
   completedStepIds,
-  onRunVikingAutoTest,
   onRequestCostMode,
-  loadingProject,
 }) {
   const targetSeconds = useMemo(() => getTargetDurationSeconds(settings), [settings])
   const activeAi = getAiProvider(settings.aiProvider)
@@ -123,21 +121,6 @@ export default function AgentPanel({
         ) : null}
       </div>
 
-      <div className="agent-settings-card viking-test-card">
-        <span className="panel-kicker">Viking documentary test</span>
-        <p className="hint agent-key-hint">
-          299-shot Stamford Bridge → Hastings project with cinematic Viking visual style baked into every image prompt.
-        </p>
-        <button
-          type="button"
-          className="agent-run-btn primary"
-          disabled={running || loadingProject}
-          onClick={onRunVikingAutoTest}
-        >
-          {running ? 'Running…' : 'Auto-test Viking (10 shots → images → MP4)'}
-        </button>
-      </div>
-
       <div className="agent-settings-card">
         <div className="agent-card-head-row">
           <span className="panel-kicker">Video topic</span>
@@ -151,7 +134,7 @@ export default function AgentPanel({
             className="agent-brief-input"
             rows={4}
             value={settings.projectBrief}
-            placeholder="Example: A 20-minute Arabic documentary about North Korea from the inside — daily life, quiet streets, and human stories."
+            placeholder="Example: A 10-minute documentary about the history of jazz — key artists, iconic venues, and how the music spread worldwide."
             onChange={(event) => update({ projectBrief: event.target.value })}
             onBlur={() => onSaveSettings?.()}
           />

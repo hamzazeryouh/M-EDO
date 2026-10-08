@@ -230,7 +230,7 @@ Rules:
   }))
 }
 
-/** Fill empty voice fields on existing shots (Viking / loaded projects). */
+/** Fill empty voice fields on existing shots (imported projects). */
 export async function generateNarrationForShots(shots, settings, options = {}) {
   const {
     brief = settings.projectBrief ?? '',

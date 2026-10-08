@@ -13,13 +13,6 @@ export const WORKFLOW_STEP_DEFS = {
     description: 'Create AI visuals for each shot',
     category: 'create',
   },
-  loadProject: {
-    id: 'loadProject',
-    label: 'Load project',
-    shortLabel: 'Load',
-    description: 'Import Korea documentary assets if timeline is empty',
-    category: 'input',
-  },
   limitShots: {
     id: 'limitShots',
     label: 'Limit shots',
@@ -88,7 +81,6 @@ export const WORKFLOW_STEP_DEFS = {
 export const DEFAULT_WORKFLOW_ORDER = [
   'generateScript',
   'generateImages',
-  'loadProject',
   'limitShots',
   'applyTemplate',
   'fitTargetDuration',
@@ -107,11 +99,11 @@ export const WORKFLOW_PRESETS = {
     description: 'Topic → script → images → speech → export',
     steps: ['generateScript', 'generateImages', 'applyTemplate', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
   },
-  koreaDoc: {
-    id: 'koreaDoc',
-    label: 'Korea documentary',
-    description: 'Load existing project → TTS → export',
-    steps: ['loadProject', 'limitShots', 'applyTemplate', 'fitTargetDuration', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
+  fullVideo: {
+    id: 'fullVideo',
+    label: 'Full video pipeline',
+    description: 'AI images + template + narration + speech + sync + MP4',
+    steps: ['generateImages', 'applyTemplate', 'generateNarration', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
   },
   voiceOnly: {
     id: 'voiceOnly',
@@ -137,31 +129,12 @@ export const WORKFLOW_PRESETS = {
     description: 'Script + standard images + free speech',
     steps: ['generateScript', 'generateImages', 'limitShots', 'applyTemplate', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
   },
-  vikingTest: {
-    id: 'vikingTest',
-    label: 'Viking test (10)',
-    description: 'Generate 10 AI images + export MP4',
-    steps: ['generateImages', 'applyTemplate', 'exportVideo'],
-  },
-  vikingFull: {
-    id: 'vikingFull',
-    label: 'Viking full',
-    description: 'Images + narration + speech + sync + export',
-    steps: ['generateImages', 'applyTemplate', 'generateNarration', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
-  },
-  fullVideo: {
-    id: 'fullVideo',
-    label: 'Full video pipeline',
-    description: 'AI images + template + narration + speech + sync + MP4',
-    steps: ['generateImages', 'applyTemplate', 'generateNarration', 'generateTts', 'spliceMaster', 'fitToAudio', 'exportVideo'],
-  },
 }
 
 export function buildDefaultWorkflow(enabledOverrides = {}) {
   const legacyEnabled = {
     generateScript: false,
     generateImages: false,
-    loadProject: true,
     limitShots: true,
     applyTemplate: true,
     fitTargetDuration: true,

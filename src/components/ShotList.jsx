@@ -17,7 +17,7 @@ export default function ShotList({
     return (
       <div className="empty-shots">
         <p>No images yet.</p>
-        <p className="muted">Korea project auto-loads on start, or upload images manually.</p>
+        <p className="muted">Import images or a manifest.json to get started.</p>
       </div>
     )
   }

@@ -229,7 +229,7 @@ export const PLATFORM_TEMPLATES = [
     defaultShotDuration: 5,
     animation: 'kenBurnsIn',
     transition: 'crossfade',
-    description: 'Long-form documentary style (Korea project default).',
+    description: 'Long-form documentary style (16:9).',
   },
 ]
 

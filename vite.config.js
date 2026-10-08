@@ -1,29 +1,8 @@
-import path from 'node:path'
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { chatWithProvider, testAiProvider } from './server/aiProviders.js'
 import { generateWithProvider, testImageProvider } from './server/imageProviders.js'
 import { synthesizeWithProvider, testTtsProvider } from './server/ttsProviders.js'
-
-const rootDir = path.dirname(fileURLToPath(import.meta.url))
-const koreaImagesDir = path.resolve(
-  rootDir,
-  '../كُوريا الشمالية من الداخل - خطة فيديو AI كاملة/images',
-)
-const vikingProjectDir = path.resolve(rootDir, 'projects/viking-age')
-
-const mimeTypes = {
-  '.json': 'application/json',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.webp': 'image/webp',
-  '.mp3': 'audio/mpeg',
-  '.wav': 'audio/wav',
-  '.m4a': 'audio/mp4',
-}
 
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -93,7 +72,6 @@ function ttsApiPlugin() {
   return {
     name: 'tts-api',
     configureServer(server) {
-      // More specific path must be registered first — /api/tts also matches /api/tts/test
       server.middlewares.use('/api/tts/test', async (req, res) => {
         if (req.method !== 'POST') {
           res.statusCode = 405
@@ -185,56 +163,9 @@ function imageApiPlugin() {
   }
 }
 
-function staticProjectPlugin(route, baseDir) {
-  return {
-    name: `static-project-${route.slice(1)}`,
-    configureServer(server) {
-      server.middlewares.use(route, (req, res) => {
-        const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0])
-        const relativePath = urlPath.replace(/^\/+/, '')
-        const filePath = path.resolve(baseDir, relativePath)
-
-        if (!filePath.startsWith(baseDir)) {
-          res.statusCode = 403
-          res.end('Forbidden')
-          return
-        }
-
-        if (req.method === 'HEAD') {
-          fs.access(filePath, fs.constants.R_OK, (error) => {
-            if (error) {
-              res.statusCode = 404
-              res.end()
-              return
-            }
-            const ext = path.extname(filePath).toLowerCase()
-            res.setHeader('Content-Type', mimeTypes[ext] ?? 'application/octet-stream')
-            res.statusCode = 200
-            res.end()
-          })
-          return
-        }
-
-        fs.readFile(filePath, (error, data) => {
-          if (error) {
-            res.statusCode = 404
-            res.end('Not found')
-            return
-          }
-          const ext = path.extname(filePath).toLowerCase()
-          res.setHeader('Content-Type', mimeTypes[ext] ?? 'application/octet-stream')
-          res.end(data)
-        })
-      })
-    },
-  }
-}
-
 export default defineConfig({
   plugins: [
     react(),
-    staticProjectPlugin('/korea-project', koreaImagesDir),
-    staticProjectPlugin('/viking-project', vikingProjectDir),
     ttsApiPlugin(),
     aiApiPlugin(),
     imageApiPlugin(),
@@ -242,8 +173,5 @@ export default defineConfig({
   server: {
     port: 5174,
     open: true,
-    fs: {
-      allow: ['..'],
-    },
   },
 })

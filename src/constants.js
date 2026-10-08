@@ -1,4 +1,3 @@
-export const KOREA_PROJECT_BASE = '/korea-project'
 
 export const ANIMATIONS = [
   { id: 'static', label: 'Static', description: 'No movement' },
@@ -106,21 +105,6 @@ export function createShot(file, overrides = {}) {
     file,
     src: URL.createObjectURL(file),
     ...baseShot(overrides),
-  }
-}
-
-export function createShotFromUrl(entry, baseUrl = KOREA_PROJECT_BASE, overrides = {}) {
-  return {
-    id: crypto.randomUUID(),
-    name: `Shot ${String(entry.shot).padStart(3, '0')}`,
-    file: null,
-    src: `${baseUrl}/${entry.file}`,
-    ...baseShot({
-      voice: entry.voice ?? '',
-      imagePrompt: entry.imagePrompt ?? entry.prompt ?? '',
-      shotNumber: entry.shot,
-      ...overrides,
-    }),
   }
 }
 

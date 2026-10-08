@@ -16,7 +16,6 @@ function StepIcon({ stepId }) {
   const icons = {
     generateScript: '✎',
     generateImages: '▣',
-    loadProject: '⤓',
     limitShots: '✂',
     applyTemplate: '▭',
     fitTargetDuration: '⏱',

@@ -3371,11 +3371,6 @@ input, select, textarea {
   padding: 0;
 }
 
-.viking-test-card {
-  border-color: #6b4d2e;
-  background: linear-gradient(180deg, #1a1510, #121827);
-}
-
 .workflow-studio {
   display: flex;
   flex-direction: column;

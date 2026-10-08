@@ -325,7 +325,7 @@ export default function PreviewPanel({
                 {shots.length === 0 ? (
                   <div className="preview-placeholder">
                     <strong>No sequence loaded</strong>
-                    <span>Import images or reload the Korea project</span>
+                    <span>Import images or a manifest to get started</span>
                   </div>
                 ) : null}
               </div>

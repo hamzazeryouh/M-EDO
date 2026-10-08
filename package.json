@@ -1,11 +1,10 @@
 {
-  "name": "image-video-editor",
+  "name": "m-edo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build:viking": "node scripts/build-viking-manifest.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

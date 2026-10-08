@@ -1,6 +1,5 @@
 import {
   IconExport,
-  IconFolder,
   IconImport,
   IconPanelLeft,
   IconPanelRight,
@@ -40,8 +39,6 @@ export default function Toolbar({
   onImportImages,
   onImportManifest,
   onImportAudio,
-  onReloadProject,
-  loadingProject,
   onExportTest,
   onExport,
   exporting,
@@ -101,10 +98,6 @@ export default function Toolbar({
             <IconPanelRight size={18} />
           </IconButton>
           <span className="menu-divider" />
-          <button type="button" className="menu-btn" onClick={onReloadProject} disabled={loadingProject}>
-            <IconFolder size={16} />
-            <span>Project</span>
-          </button>
           <button type="button" className="menu-btn" onClick={onImportImages}>
             <IconImport size={16} />
             <span>Images</span>

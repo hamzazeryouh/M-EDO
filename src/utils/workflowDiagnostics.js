@@ -83,14 +83,6 @@ export function diagnoseWorkflowSteps(settings, state) {
           }
         })
 
-      case 'loadProject':
-        return row(stepId, () => {
-          if (shots.length > 0) {
-            return { status: 'skip', reason: 'Timeline already has shots — load step is skipped.' }
-          }
-          return { status: 'ready', reason: 'Will import the Korea documentary manifest.' }
-        })
-
       case 'limitShots':
         return row(stepId, () => {
           if (settings.maxShots <= 0 || shots.length <= settings.maxShots) {

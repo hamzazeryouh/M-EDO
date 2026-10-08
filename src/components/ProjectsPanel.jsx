@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { formatTime } from '../constants'
 import { formatProjectDate } from '../utils/projectStore'
 import { getWorkflowDef } from '../utils/workflowSteps'
@@ -186,58 +186,6 @@ function ProjectList({
   )
 }
 
-function TemplateMenu({ running, onCreateFromKorea, onLoadVikingFull, onLoadVikingTest, onRunVikingAutoTest }) {
-  const [open, setOpen] = useState(false)
-  const menuRef = useRef(null)
-
-  useEffect(() => {
-    if (!open) {
-      return undefined
-    }
-    function onPointerDown(event) {
-      if (!menuRef.current?.contains(event.target)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [open])
-
-  function choose(action) {
-    setOpen(false)
-    action()
-  }
-
-  return (
-    <div className="projects-template-menu" ref={menuRef}>
-      <button
-        type="button"
-        className={`tool-btn ${open ? 'active-panel-btn' : ''}`}
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        Templates
-      </button>
-      {open ? (
-        <div className="projects-template-pop" role="menu">
-          <button type="button" role="menuitem" onClick={() => choose(onCreateFromKorea)}>
-            Korea documentary
-          </button>
-          <button type="button" role="menuitem" onClick={() => choose(onLoadVikingFull)}>
-            Viking full
-          </button>
-          <button type="button" role="menuitem" onClick={() => choose(onLoadVikingTest)}>
-            Viking · 10 shots
-          </button>
-          <button type="button" role="menuitem" disabled={running} onClick={() => choose(onRunVikingAutoTest)}>
-            Auto-test Viking
-          </button>
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
 export default function ProjectsPanel({
   projects,
   activeProjectId,
@@ -257,14 +205,10 @@ export default function ProjectsPanel({
   workflowSteps = [],
   onSelectProject,
   onCreateEmpty,
-  onCreateFromKorea,
   onDuplicateActive,
   onRenameActive,
   onDeleteProject,
   onSaveNow,
-  onLoadVikingFull,
-  onLoadVikingTest,
-  onRunVikingAutoTest,
   onRunAgent,
   onStopAgent,
   focusMode = false,
@@ -298,13 +242,6 @@ export default function ProjectsPanel({
         <button type="button" className="tool-btn" onClick={onSaveNow}>
           {saving ? 'Saving…' : 'Save'}
         </button>
-        <TemplateMenu
-          running={running}
-          onCreateFromKorea={onCreateFromKorea}
-          onLoadVikingFull={onLoadVikingFull}
-          onLoadVikingTest={onLoadVikingTest}
-          onRunVikingAutoTest={onRunVikingAutoTest}
-        />
       </div>
 
       <div className="projects-workspace">

@@ -10,7 +10,6 @@ import { getActiveAiConfig, getMaxImages, getTargetDurationSeconds } from './age
 import { planVideoWithAi } from './aiAgent'
 import { generateImagesForShots } from './imageGenerator'
 import { countShotsNeedingImages } from './shotImages'
-import { loadKoreaProject } from './loadKoreaProject'
 import { shouldUseAiNarration } from './modelDefaults'
 import { generateNarrationForShots, generateVideoScript } from './scriptGenerator'
 import { generateTTSForShots } from './textToSpeech'
@@ -116,22 +115,6 @@ export async function executeAgentStep(stepId, ctx) {
       })
       assignShots(nextShots)
       appendAgentLog('✓ Image generation complete — all new images are in Media')
-      return { workingShots: nextShots, workingMaster }
-    }
-
-    case 'loadProject': {
-      if (workingShots.length > 0) {
-        appendAgentLog('✓ Timeline already has shots — skipping load')
-        return { workingShots, workingMaster }
-      }
-      appendAgentLog('Loading Korea project…')
-      const { shots: loadedShots } = await loadKoreaProject()
-      const nextShots = applyPreset(loadedShots, settings.stylePresetId)
-      setShots(nextShots)
-      setSelectedId(nextShots[0]?.id ?? null)
-      setCurrentTime(0)
-      setProjectName('Korea Documentary')
-      appendAgentLog(`✓ Loaded ${nextShots.length} shots`)
       return { workingShots: nextShots, workingMaster }
     }
 
@@ -343,10 +326,10 @@ export function validateWorkflowBeforeRun(settings) {
   if (enabled.length === 0) {
     throw new Error('Add at least one enabled step to the workflow.')
   }
-  const needsShots = enabled.some((item) => !['generateScript', 'loadProject'].includes(item.id))
-  const createsShots = enabled.some((item) => ['generateScript', 'loadProject'].includes(item.id))
+  const needsShots = enabled.some((item) => item.id !== 'generateScript')
+  const createsShots = enabled.some((item) => item.id === 'generateScript')
   if (needsShots && !createsShots) {
-    return { warning: 'Workflow may need existing shots or a script/load step first.' }
+    return { warning: 'Workflow may need existing shots or a script step first.' }
   }
   return {}
 }

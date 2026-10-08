@@ -13,7 +13,6 @@ import {
 const STEP_ICONS = {
   generateScript: '1',
   generateImages: '▣',
-  loadProject: '⤓',
   limitShots: '✂',
   applyTemplate: '▭',
   fitTargetDuration: '⏱',

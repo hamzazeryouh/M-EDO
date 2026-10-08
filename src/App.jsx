@@ -21,7 +21,6 @@ import {
 } from './constants'
 import { useHistoryState } from './hooks/useHistoryState'
 import { buildSplicedMasterUrl, getAudioDuration } from './utils/audioMixer'
-import { loadKoreaProject } from './utils/loadKoreaProject'
 import { generateTTSForShots, synthesizeText } from './utils/textToSpeech'
 import { duplicateShot, setShotDuration, splitShotsAtTime } from './utils/clipOps'
 import { getShotStarts } from './utils/timeline'
@@ -39,12 +38,10 @@ import {
   saveAgentSettings,
 } from './utils/agentSettings'
 import { getAudioMatchSlotDuration, matchShotsToAudio } from './utils/matchShotsToAudio'
-import { loadVikingProject } from './utils/loadVikingProject'
 import { applyCostMode } from './utils/costMode'
 import { applyProductionDefaults } from './utils/productionDefaults'
 import { revalidateShotImages } from './utils/shotImages'
-import { VIKING_AGENT_PRESET, VIKING_PROJECT_BRIEF } from './utils/vikingProject'
-import { applyWorkflowPreset, getEnabledWorkflowSteps, getWorkflowDef, syncStepsFromWorkflow } from './utils/workflowSteps'
+import { getEnabledWorkflowSteps, getWorkflowDef } from './utils/workflowSteps'
 import {
   buildProjectSnapshot,
   createEmptyProject,
@@ -93,11 +90,6 @@ function buildShotsFromManifest(manifest, imageFiles) {
       })
     })
     .filter(Boolean)
-}
-
-function isVikingManifest(manifest) {
-  const title = manifest.title ?? ''
-  return Boolean(manifest.visualStyle) || /viking/i.test(title)
 }
 
 export default function App() {
@@ -381,21 +373,13 @@ export default function App() {
     try {
       let registry = refreshProjectList()
       if (registry.projects.length === 0) {
-        const { shots: loadedShots } = await loadKoreaProject()
-        const snapshot = await buildProjectSnapshot({
-          id: crypto.randomUUID(),
-          name: 'Korea Documentary',
-          platformTemplateId: DEFAULT_PLATFORM_TEMPLATE_ID,
-          projectBrief: '',
-          shots: applyPreset(loadedShots, 'documentary'),
-          createdAt: new Date().toISOString(),
-        })
+        const empty = createEmptyProject('Untitled Project')
+        const snapshot = await buildProjectSnapshot(empty)
         registry = saveProjectRecord(snapshot)
         setActiveProjectId(snapshot.id)
         setActiveProjectIdState(snapshot.id)
         await applyProjectToEditor(snapshot)
         refreshProjectList(registry)
-        setMessage(`Loaded ${snapshot.shots.length} shots into your first project.`)
       } else {
         const activeId = registry.activeId ?? registry.projects[0]?.id
         const project = loadProjectById(activeId)
@@ -417,87 +401,6 @@ export default function App() {
   async function createEmptyProjectAction() {
     const project = createEmptyProject(uniqueProjectName('Untitled Project', projectList))
     await createProjectFromSnapshot(project)
-  }
-
-  async function createVikingProjectAction(maxShots = 0) {
-    setLoadingProject(true)
-    try {
-      const { shots: loadedShots, title, totalCount, missingCount } = await loadVikingProject({ maxShots })
-      const workflow = applyWorkflowPreset(maxShots > 0 ? 'vikingTest' : 'fullVideo')
-      const snapshot = await buildProjectSnapshot({
-        id: crypto.randomUUID(),
-        name: uniqueProjectName(maxShots > 0 ? `Viking Test (${maxShots})` : title, projectList),
-        platformTemplateId: VIKING_AGENT_PRESET.platformTemplateId,
-        projectBrief: VIKING_PROJECT_BRIEF,
-        shots: applyPreset(loadedShots, 'cinematic'),
-        createdAt: new Date().toISOString(),
-      })
-      await createProjectFromSnapshot(snapshot)
-      setPlatformTemplateId(VIKING_AGENT_PRESET.platformTemplateId)
-      setAgentSettings((current) => {
-        const next = applyProductionDefaults(
-          {
-            ...current,
-            ...VIKING_AGENT_PRESET,
-            maxShots: maxShots > 0 ? maxShots : VIKING_AGENT_PRESET.maxShots,
-            scriptMaxShots: maxShots > 0 ? maxShots : VIKING_AGENT_PRESET.scriptMaxShots,
-            workflow,
-          },
-          { workflowPreset: maxShots > 0 ? 'vikingTest' : 'fullVideo' },
-        )
-        saveAgentSettings(next)
-        return next
-      })
-      setMessage(
-        `Viking: ${totalCount} shots, ${missingCount} need images. Arabic OpenAI TTS · YouTube HD · gpt-image-1.`,
-      )
-      return snapshot
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not load Viking project.')
-      return null
-    } finally {
-      setLoadingProject(false)
-    }
-  }
-
-  async function runVikingAutoTest(shotCount = 10) {
-    const snapshot = await createVikingProjectAction(shotCount)
-    if (!snapshot) {
-      return
-    }
-    const workflow = applyWorkflowPreset('vikingTest')
-    const settings = {
-      ...agentSettings,
-      ...VIKING_AGENT_PRESET,
-      maxShots: shotCount,
-      scriptMaxShots: shotCount,
-      workflow,
-      steps: syncStepsFromWorkflow(workflow),
-    }
-    setAgentSettings(settings)
-    saveAgentSettings(settings)
-    setMessage(`Auto-testing Viking shots 1–${shotCount} — generating images + export…`)
-    await runVideoAgent(settings)
-  }
-
-  async function createKoreaProjectAction() {
-    setLoadingProject(true)
-    try {
-      const { shots: loadedShots } = await loadKoreaProject()
-      const snapshot = await buildProjectSnapshot({
-        id: crypto.randomUUID(),
-        name: uniqueProjectName('Korea Documentary', projectList),
-        platformTemplateId: DEFAULT_PLATFORM_TEMPLATE_ID,
-        projectBrief: '',
-        shots: applyPreset(loadedShots, 'documentary'),
-        createdAt: new Date().toISOString(),
-      })
-      await createProjectFromSnapshot(snapshot)
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not load Korea template.')
-    } finally {
-      setLoadingProject(false)
-    }
   }
 
   async function duplicateActiveProjectAction() {
@@ -537,27 +440,6 @@ export default function App() {
     setMessage('Project deleted.')
   }
 
-  async function loadKoreaProjectOnStart() {
-    setLoadingProject(true)
-    try {
-      const { shots: loadedShots, readyCount, missingCount } = await loadKoreaProject()
-      replaceShots(applyPreset(loadedShots, 'documentary'))
-      setSelectedId(loadedShots[0]?.id ?? null)
-      setCurrentTime(0)
-      setProjectName('Korea Documentary')
-      await saveCurrentProject({ silent: true })
-      setMessage(
-        missingCount === 0
-          ? `Loaded ${readyCount} shots into current project.`
-          : `Loaded ${loadedShots.length} shots — ${readyCount} ready, ${missingCount} pending.`,
-      )
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not load Korea project.')
-    } finally {
-      setLoadingProject(false)
-    }
-  }
-
   function addFiles(fileList) {
     const files = Array.from(fileList).filter((file) => file.type.startsWith('image/'))
     if (files.length === 0) {
@@ -587,7 +469,7 @@ export default function App() {
     }
     const imageFiles = files.filter((file) => file.type.startsWith('image/'))
     const imported = buildShotsFromManifest(manifest, imageFiles)
-    const presetId = isVikingManifest(manifest) ? 'cinematic' : 'documentary'
+    const presetId = manifest.visualStyle ? 'cinematic' : 'documentary'
     replaceShots(applyPreset(imported, presetId))
     setSelectedId(imported[0]?.id ?? null)
     setCurrentTime(0)
@@ -595,18 +477,18 @@ export default function App() {
     clearAllAudio()
     setProjectName(manifest.title ?? 'Imported Project')
 
-    if (isVikingManifest(manifest)) {
-      const workflow = applyWorkflowPreset(imported.length <= 12 ? 'vikingTest' : 'vikingFull')
+    if (manifest.visualStyle || manifest.title) {
       setAgentSettings((current) => {
+        const briefParts = []
+        if (manifest.title) {
+          briefParts.push(manifest.title)
+        }
+        if (manifest.visualStyle) {
+          briefParts.push(`Visual style:\n${manifest.visualStyle}`)
+        }
         const next = {
           ...current,
-          ...VIKING_AGENT_PRESET,
-          projectBrief: manifest.visualStyle
-            ? `${VIKING_PROJECT_BRIEF}\n\nVisual style:\n${manifest.visualStyle}`
-            : VIKING_PROJECT_BRIEF,
-          maxShots: imported.length <= 12 ? imported.length : 0,
-          workflow,
-          steps: syncStepsFromWorkflow(workflow),
+          projectBrief: briefParts.join('\n\n'),
         }
         saveAgentSettings(next)
         return next
@@ -1321,8 +1203,6 @@ export default function App() {
         onImportImages={() => imageInputRef.current?.click()}
         onImportManifest={() => manifestInputRef.current?.click()}
         onImportAudio={() => audioInputRef.current?.click()}
-        onReloadProject={loadKoreaProjectOnStart}
-        loadingProject={loadingProject}
         onExportTest={() => handleExport(8)}
         onExport={() => handleExport()}
         exporting={exporting}
@@ -1380,14 +1260,10 @@ export default function App() {
             workflowSteps: getEnabledWorkflowSteps(agentSettings),
             onSelectProject: switchToProject,
             onCreateEmpty: createEmptyProjectAction,
-            onCreateFromKorea: createKoreaProjectAction,
             onDuplicateActive: duplicateActiveProjectAction,
             onRenameActive: renameActiveProjectAction,
             onDeleteProject: deleteProjectAction,
             onSaveNow: () => saveCurrentProject(),
-            onLoadVikingFull: () => createVikingProjectAction(0),
-            onLoadVikingTest: () => createVikingProjectAction(10),
-            onRunVikingAutoTest: () => runVikingAutoTest(10),
             onRunAgent: runVideoAgent,
             onStopAgent: stopVideoAgent,
           }}
@@ -1469,9 +1345,7 @@ export default function App() {
             shotsWithVoice,
             activeStepId: agentActiveStep,
             completedStepIds: agentCompletedSteps,
-            onRunVikingAutoTest: () => runVikingAutoTest(10),
             onRequestCostMode: requestCostMode,
-            loadingProject,
           }}
           templateProps={{
             activeTemplateId: platformTemplateId,

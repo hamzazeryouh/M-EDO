@@ -4,9 +4,9 @@ import MaxImagesInput from './MaxImagesInput'
 
 const PIPELINE = [...WORKFLOW_PRESETS.fullCreate.steps, 'viewResult']
 const EXAMPLES = [
-  'A short Arabic documentary about daily life in a coastal city.',
-  'The Viking Age, from Stamford Bridge to the battle of Hastings.',
-  'A quiet night walk through a historic medina.',
+  'A short documentary about daily life in a coastal city.',
+  'The history of space exploration, from Sputnik to the Moon landing.',
+  'A quiet night walk through a historic old town.',
 ]
 
 function logClass(entry) {

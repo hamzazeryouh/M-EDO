@@ -1,6 +1,6 @@
-# Image Video Editor
+# M-EDO
 
-A local browser editor for turning still images and narration into a finished video. You arrange shots on a timeline, add speech, preview the cut, and export an MP4. An optional agent can run that pipeline from a subject or a loaded project.
+A local browser editor for turning still images and narration into a finished video. You arrange shots on a timeline, add speech, preview the cut, and export an MP4. An optional AI agent can run the full pipeline from a topic or an imported project.
 
 The app runs on your machine with [Vite](https://vite.dev/) and React. API keys stay in the browser and are sent only to the providers you choose.
 
@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Open the local address Vite prints (usually `http://localhost:5173`).
+Open the local address Vite prints (usually `http://localhost:5174`).
 
 ```bash
 npm run build
@@ -51,7 +51,7 @@ Projects are saved in the browser (`localStorage`), not on a server.
 
 A typical pass looks like this:
 
-1. Start a project, or import images and a `manifest.json` (shot number, image file, narration, image prompt).
+1. Start an empty project, or import images and a `manifest.json` (shot number, image file, narration, image prompt).
 2. Pick a format, such as YouTube 1920×1080 or a vertical short.
 3. Write or generate narration and image prompts.
 4. Generate images, or use pictures you already imported.
@@ -60,7 +60,28 @@ A typical pass looks like this:
 
 Speech can use free Microsoft Edge voices with no API key. Image generation and paid voices need a key in **Agent** or **Speech**.
 
-You can also do this by hand: import images, set each shot’s duration and motion, add audio, and export.
+You can also do this by hand: import images, set each shot's duration and motion, add audio, and export.
+
+## Manifest format
+
+Import a folder or file selection containing `manifest.json` plus optional image files:
+
+```json
+{
+  "title": "My Documentary",
+  "visualStyle": "Optional global style notes for AI image prompts",
+  "images": [
+    {
+      "shot": 1,
+      "file": "01-intro.jpg",
+      "voice": "Opening narration line.",
+      "imagePrompt": "Wide shot of a city skyline at dawn."
+    }
+  ]
+}
+```
+
+Shots without a matching image file are imported as prompt-only placeholders — use **Agent → Generate images** to fill them in.
 
 ## Providers
 
@@ -85,14 +106,6 @@ Keys are entered in the app. They are not stored in this repository.
 - ElevenLabs
 - Azure Speech
 - Google Cloud TTS
-
-## Included sample
-
-`projects/viking-age/` is a shot list (`manifest.json`) for a Viking Age documentary: narration lines and image prompts. Load it from the app, or rebuild the manifest with:
-
-```bash
-npm run build:viking
-```
 
 ## License
 

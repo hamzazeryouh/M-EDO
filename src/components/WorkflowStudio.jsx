@@ -17,8 +17,8 @@ import {
 import WorkflowFlowEditor from './WorkflowFlowEditor'
 
 const FEATURED_FLOWS = [
-  { id: 'fullVideo', highlight: true },
-  { id: 'vikingFull', highlight: false },
+  { id: 'fullCreate', highlight: true },
+  { id: 'fullVideo', highlight: false },
   { id: 'voiceOnly', highlight: false },
   { id: 'minimalCost', highlight: false },
 ]
@@ -213,7 +213,7 @@ export default function WorkflowStudio({
           <span>{platform.label}</span>
           <span>{production.imageModel} {production.imageSize}</span>
           <button type="button" className="tool-btn accent" disabled={running} onClick={applyProduction}>
-            Apply Arabic + OpenAI
+            Apply production defaults
           </button>
         </div>
         <div className="studio-readiness">
