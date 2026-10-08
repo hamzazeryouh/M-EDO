@@ -9,25 +9,54 @@ The app runs on your machine with [Vite](https://vite.dev/) and React. API keys 
 - Node.js 18+
 - A modern Chromium, Firefox, or Safari browser
 
-**AI features (script, images, speech)** use local API routes that run with `npm run dev`. A static build (`npm run build`) exports the editor UI only — TTS and AI providers need the dev server or a deployed backend with the same `/api/*` routes.
+**AI features (script, images, speech)** use local API routes at `/api/*`. They work in both development and production modes.
 
 ## Run it
 
 You need Node.js installed.
+
+**Development** (hot reload):
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local address Vite prints (usually `http://localhost:5174`).
+Open `http://localhost:5174`.
+
+**Production** (built UI + API server):
 
 ```bash
 npm run build
-npm run preview
+npm start
 ```
 
-`npm run build` writes a production bundle to `dist`. `npm run preview` serves that bundle.
+Open `http://localhost:4174`. Or use `npm run preview` to build and start in one step.
+
+Set `PORT=8080 npm start` to change the production port.
+
+## Architecture
+
+```
+src/
+  App.jsx              Entry — wraps EditorProvider
+  EditorShell.jsx      Layout and panel wiring
+  context/
+    EditorContext.jsx  Composes domain hooks
+  hooks/
+    useTimelineState.js   Shots, playback, clip editing
+    useProjectManager.js  Projects, manifest import, settings
+    useAudioPipeline.js   Tracks, TTS, master audio
+    useAgentRunner.js     AI workflow automation
+    useExport.js          MP4/WebM export + image regen
+    useUILayout.js        Sidebars, toasts, dialogs
+    useKeyboardShortcuts.js
+  utils/
+    manifestImport.js  Shared manifest parsing
+  server/
+    apiRouter.js       Shared /api/* routes (dev + production)
+    index.js           Production static + API server
+```
 
 ## What you see
 

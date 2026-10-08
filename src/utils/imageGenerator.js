@@ -14,7 +14,7 @@ export async function generateImage(prompt, settings, { width = 1920, height = 1
   if (!response.ok) {
     const detail = await response.text().catch(() => 'Image generation failed')
     if (detail.includes('<!DOCTYPE') || detail.includes('<html')) {
-      throw new Error('Image API unavailable — run the app with npm run dev (not static build).')
+      throw new Error('Image API unavailable — run npm run dev or npm start after npm run build.')
     }
     throw new Error(detail || 'Image generation failed')
   }

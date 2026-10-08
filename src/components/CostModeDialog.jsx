@@ -1,7 +1,10 @@
 import { COST_MODES } from '../utils/costMode'
+import { useModalFocus } from '../hooks/useModalFocus'
 
 export default function CostModeDialog({ modeId, maxImages, onCancel, onConfirm }) {
   const mode = COST_MODES[modeId]
+  const dialogRef = useModalFocus(Boolean(mode), onCancel)
+
   if (!mode) {
     return null
   }
@@ -15,10 +18,12 @@ export default function CostModeDialog({ modeId, maxImages, onCancel, onConfirm 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onCancel}>
       <div
+        ref={dialogRef}
         className="modal-card"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cost-mode-title"
+        tabIndex={-1}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <span className="panel-kicker">Whole project</span>

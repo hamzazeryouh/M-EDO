@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "start": "node server/index.js",
+    "preview": "npm run build && npm run start"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "edge-tts-universal": "^1.4.0",
     "mp4-muxer": "^5.1.0",
     "react": "^19.2.8",

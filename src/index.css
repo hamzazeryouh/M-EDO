@@ -4459,6 +4459,54 @@ a.agent-run-btn.primary {
   margin-top: 0.9rem;
 }
 
+.export-dialog {
+  width: min(480px, 100%);
+}
+
+.export-dialog-summary {
+  margin-top: 0.35rem;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.export-filename-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.export-extension {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.export-dialog-hint {
+  margin-top: 0.65rem;
+}
+
+.export-dialog-progress {
+  position: relative;
+  margin-top: 0.75rem;
+  height: 2rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  color: #dbe6ff;
+}
+
+.export-dialog-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, rgba(91, 149, 255, 0.35), rgba(91, 149, 255, 0.15));
+  transition: width 0.15s ease;
+}
+
 .agent-live-chip {
   display: inline-flex;
   align-items: center;
