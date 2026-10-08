@@ -4,6 +4,9 @@ import { getTemplatesByGroup } from '../platformTemplates'
 export default function ToolsBar({
   shotsCount,
   platformTemplateId,
+  batchDuration = DEFAULT_DURATION,
+  batchAnimation = 'kenBurnsIn',
+  toolsKey = 'default',
   onPlatformTemplateChange,
   onApplyPreset,
   onRandomizeMix,
@@ -13,7 +16,7 @@ export default function ToolsBar({
   const templateGroups = getTemplatesByGroup()
 
   return (
-    <section className="tools-bar">
+    <section className="tools-bar" key={toolsKey}>
       <div className="tool-group">
         <span className="tool-group-label">Export</span>
         <label className="tool-field">
@@ -60,13 +63,18 @@ export default function ToolsBar({
             min="0.5"
             max="120"
             step="0.5"
-            defaultValue={DEFAULT_DURATION}
+            defaultValue={batchDuration}
+            key={`duration-${toolsKey}`}
             onBlur={(event) => onApplyDurationToAll(Number(event.target.value))}
           />
         </label>
         <label className="tool-field">
           <span>Animation</span>
-          <select defaultValue="kenBurnsIn" onChange={(event) => onApplyAnimationToAll(event.target.value)}>
+          <select
+            defaultValue={batchAnimation}
+            key={`animation-${toolsKey}`}
+            onChange={(event) => onApplyAnimationToAll(event.target.value)}
+          >
             {ANIMATIONS.map((item) => (
               <option key={item.id} value={item.id}>{item.label}</option>
             ))}
@@ -79,6 +87,7 @@ export default function ToolsBar({
         <kbd>←</kbd><kbd>→</kbd> clip
         <kbd>S</kbd> split
         <kbd>Del</kbd> remove
+        <kbd>Ctrl</kbd><kbd>S</kbd> save
       </div>
     </section>
   )

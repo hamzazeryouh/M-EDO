@@ -4,6 +4,13 @@ A local browser editor for turning still images and narration into a finished vi
 
 The app runs on your machine with [Vite](https://vite.dev/) and React. API keys stay in the browser and are sent only to the providers you choose.
 
+## Requirements
+
+- Node.js 18+
+- A modern Chromium, Firefox, or Safari browser
+
+**AI features (script, images, speech)** use local API routes that run with `npm run dev`. A static build (`npm run build`) exports the editor UI only — TTS and AI providers need the dev server or a deployed backend with the same `/api/*` routes.
+
 ## Run it
 
 You need Node.js installed.
@@ -82,6 +89,19 @@ Import a folder or file selection containing `manifest.json` plus optional image
 ```
 
 Shots without a matching image file are imported as prompt-only placeholders — use **Agent → Generate images** to fill them in.
+
+## Keyboard shortcuts
+
+| Key | Action |
+| --- | --- |
+| `Space` | Play / pause |
+| `←` / `→` | Previous / next clip |
+| `Home` | Go to start |
+| `S` | Split at playhead |
+| `Delete` | Remove selected clip |
+| `Ctrl+Z` / `Cmd+Z` | Undo |
+| `Ctrl+Shift+Z` / `Cmd+Shift+Z` | Redo |
+| `Ctrl+S` / `Cmd+S` | Save project |
 
 ## Providers
 

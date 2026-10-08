@@ -49,7 +49,8 @@ export default function Toolbar({
   rightSidebarOpen,
   onToggleLeftSidebar,
   onToggleRightSidebar,
-  projectName = 'Untitled Sequence',
+  projectName = 'Untitled Project',
+  projectSaving = false,
   agentRunning = false,
   agentProgress = 0,
   agentStepLabel = '',
@@ -62,10 +63,13 @@ export default function Toolbar({
     <header className="menubar">
       <div className="menubar-start">
         <div className="app-brand">
-          <span className="brand-mark">IV</span>
+          <span className="brand-mark">M</span>
           <div>
-            <strong>Image Video Editor</strong>
-            <span className="project-name">{projectName}</span>
+            <strong>M-EDO</strong>
+            <span className="project-name">
+              {projectName}
+              {projectSaving ? ' · Saving…' : ''}
+            </span>
           </div>
         </div>
 
@@ -83,9 +87,9 @@ export default function Toolbar({
               className="header-agent-kill"
               onClick={onStopAgent}
               disabled={agentStopping}
-              title="Kill this agent task"
+              title="Stop this agent task"
             >
-              {agentStopping ? 'Killing…' : 'Kill'}
+              {agentStopping ? 'Stopping…' : 'Stop'}
             </button>
           </div>
         ) : null}
@@ -118,7 +122,7 @@ export default function Toolbar({
           <IconButton title="Undo (Ctrl+Z)" disabled={!canUndo} onClick={onUndo}>
             <IconUndo size={18} />
           </IconButton>
-          <IconButton title="Redo (Ctrl+Y)" disabled={!canRedo} onClick={onRedo}>
+          <IconButton title="Redo (Ctrl+Shift+Z)" disabled={!canRedo} onClick={onRedo}>
             <IconRedo size={18} />
           </IconButton>
           <span className="transport-divider" />
@@ -143,9 +147,11 @@ export default function Toolbar({
       </div>
 
       <div className="menubar-end">
-        <button type="button" className="menu-btn" disabled={exporting || shotsCount === 0} onClick={onExportTest}>
-          Test 8
-        </button>
+        {import.meta.env.DEV ? (
+          <button type="button" className="menu-btn dev-only" disabled={exporting || shotsCount === 0} onClick={onExportTest} title="Dev: export first 8 seconds only">
+            Test 8s
+          </button>
+        ) : null}
         <button
           type="button"
           className="export-btn primary"

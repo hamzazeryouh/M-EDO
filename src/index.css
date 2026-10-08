@@ -1116,6 +1116,52 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   height: 100%;
 }
 
+.timeline-empty-track {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 1rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  margin: 4px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  background: rgba(9, 11, 15, 0.82);
+  backdrop-filter: blur(4px);
+  color: #dbe6ff;
+  font-size: 0.9rem;
+}
+
+.app-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: app-loading-spin 0.8s linear infinite;
+}
+
+@keyframes app-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+.menu-btn.dev-only {
+  opacity: 0.65;
+  font-size: 0.75rem;
+}
+
 .clip-context-menu {
   position: fixed;
   z-index: 80;
@@ -1460,7 +1506,16 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   margin-left: auto;
   color: #b9d0ff;
   font-size: 0.78rem;
+  max-width: min(42vw, 520px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+.status-message-success { color: #8fd4a0; }
+.status-message-error { color: #ff9a9a; }
+.status-message-info { color: #b9d0ff; }
+.status-saving { color: #8fd4a0; font-size: 0.72rem; }
 
 .bin-list-header {
   display: grid;
@@ -1844,11 +1899,26 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   gap: 0.65rem;
 }
 
-.editor-header img {
+.editor-header img,
+.editor-thumb-placeholder {
   width: 96px;
   height: 54px;
-  object-fit: cover;
   border-radius: 6px;
+}
+
+.editor-header img {
+  object-fit: cover;
+}
+
+.editor-thumb-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--panel-3);
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 0.25rem;
 }
 
 .editor-header h3 { margin: 0; font-size: 0.95rem; }
@@ -2828,8 +2898,8 @@ input, select, textarea {
   padding: 0.45rem 0.65rem;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text);
+  background: var(--panel-2);
+  color: inherit;
   font-size: 0.82rem;
   cursor: pointer;
 }

@@ -7,7 +7,7 @@ export default function ShotEditor({ shot, onChange, isLast, onGenerateTTS, gene
   if (!shot) {
     return (
       <div className="shot-editor empty">
-        <p>Select a shot to edit duration, animation, transition, and narration audio.</p>
+        <p>Select a clip to edit image prompt, duration, motion, transitions, and narration.</p>
       </div>
     )
   }
@@ -41,13 +41,30 @@ export default function ShotEditor({ shot, onChange, isLast, onGenerateTTS, gene
   return (
     <div className="shot-editor">
       <div className="editor-header">
-        <img src={shot.src} alt={shot.name} />
+        {shot.src && !shot.missingImage ? (
+          <img src={shot.src} alt={shot.name} />
+        ) : (
+          <div className="editor-thumb-placeholder" aria-hidden="true">
+            <span>No image</span>
+          </div>
+        )}
         <div>
           <h3>{shot.name}</h3>
-          {shot.missingImage ? <p className="voice warn">Image file not generated yet — placeholder shown in preview.</p> : null}
+          {shot.missingImage ? <p className="voice warn">Image not generated yet — placeholder shown in preview.</p> : null}
           {shot.voice ? <p className="voice">{shot.voice}</p> : null}
         </div>
       </div>
+
+      <label>
+        Image prompt
+        <textarea
+          rows={3}
+          value={shot.imagePrompt ?? ''}
+          onChange={(event) => update('imagePrompt', event.target.value)}
+          placeholder="Describe the visual for this shot — used by AI image generation"
+        />
+        <span className="hint">Edit prompts after manifest import, or before running Generate images in the agent.</span>
+      </label>
 
       <label>
         Duration (seconds)

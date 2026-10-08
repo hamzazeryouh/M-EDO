@@ -432,6 +432,11 @@ export default function Timeline({
 
             <div className="timeline-track video-track" onClick={seekFromEvent}>
               <div className="track-clips">
+                {segments.length === 0 ? (
+                  <div className="timeline-empty-track">
+                    <span>Import images or a manifest from the toolbar to start editing</span>
+                  </div>
+                ) : null}
                 {segments.map(({ shot, index, start }) => (
                   <TimelineClip
                     key={shot.id}

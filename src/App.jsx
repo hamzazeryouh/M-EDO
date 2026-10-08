@@ -148,7 +148,7 @@ export default function App() {
     const saved = Number(window.localStorage.getItem('iv-timeline-height'))
     return Number.isFinite(saved) && saved >= 180 ? saved : 280
   })
-  const [projectName, setProjectName] = useState('Untitled Sequence')
+  const [projectName, setProjectName] = useState('Untitled Project')
   const [activeProjectId, setActiveProjectIdState] = useState(null)
   const [projectList, setProjectList] = useState([])
   const [projectSaving, setProjectSaving] = useState(false)
@@ -174,6 +174,7 @@ export default function App() {
   const imageInputRef = useRef(null)
   const manifestInputRef = useRef(null)
   const audioInputRef = useRef(null)
+  const keyboardActionsRef = useRef({})
 
   const selectedShot = useMemo(
     () => shots.find((shot) => shot.id === selectedId) ?? null,
@@ -249,40 +250,53 @@ export default function App() {
   }, [shots, currentTime])
 
   useEffect(() => {
+    if (!message) {
+      return undefined
+    }
+    const timer = window.setTimeout(() => setMessage(''), 5000)
+    return () => window.clearTimeout(timer)
+  }, [message])
+
+  useEffect(() => {
     function onKeyDown(event) {
       const tag = event.target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
         return
       }
+      const mod = event.ctrlKey || event.metaKey
+      const actions = keyboardActionsRef.current
       if (event.code === 'Space') {
         event.preventDefault()
-        togglePlay()
+        actions.togglePlay?.()
       } else if (event.code === 'ArrowLeft') {
         event.preventDefault()
-        goToPrevShot()
+        actions.goToPrevShot?.()
       } else if (event.code === 'ArrowRight') {
         event.preventDefault()
-        goToNextShot()
+        actions.goToNextShot?.()
       } else if (event.code === 'Home') {
         event.preventDefault()
-        goToStart()
-      } else if ((event.code === 'KeyS' || event.key === 's') && !event.ctrlKey) {
+        actions.goToStart?.()
+      } else if (mod && event.key.toLowerCase() === 's') {
         event.preventDefault()
-        splitAtPlayhead()
-      } else if (event.code === 'Delete' && selectedId) {
+        actions.saveCurrentProject?.()
+      } else if (mod && event.key.toLowerCase() === 'z' && !event.shiftKey) {
         event.preventDefault()
-        removeShot(selectedId)
-      } else if (event.ctrlKey && event.key.toLowerCase() === 'z') {
+        actions.undo?.()
+      } else if (mod && (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey))) {
         event.preventDefault()
-        undo()
-      } else if (event.ctrlKey && event.key.toLowerCase() === 'y') {
+        actions.redo?.()
+      } else if ((event.code === 'KeyS' || event.key === 's') && !mod) {
         event.preventDefault()
-        redo()
+        actions.splitAtPlayhead?.()
+      } else if (event.code === 'Delete' && actions.selectedId) {
+        event.preventDefault()
+        actions.removeShot?.(actions.selectedId)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [togglePlay, goToPrevShot, goToNextShot, goToStart, selectedId, undo, redo])
+  }, [])
 
   function refreshProjectList(registry = loadRegistry()) {
     setProjectList(registry.projects)
@@ -433,7 +447,7 @@ export default function App() {
     } else if (!registry.activeId) {
       setActiveProjectIdState(null)
       replaceShots([])
-      setProjectName('Untitled Sequence')
+      setProjectName('Untitled Project')
       setSelectedId(null)
       clearAllAudio()
     }
@@ -940,7 +954,7 @@ export default function App() {
     }
     setAgentStopping(true)
     agentAbortRef.current?.abort()
-    setMessage('Killing agent task…')
+    setMessage('Stopping agent task…')
   }
 
   function openAgentTaskPage() {
@@ -1184,8 +1198,30 @@ export default function App() {
     window.addEventListener('pointerup', onUp)
   }, [timelineHeight])
 
+  keyboardActionsRef.current = {
+    togglePlay,
+    goToPrevShot,
+    goToNextShot,
+    goToStart,
+    splitAtPlayhead,
+    removeShot,
+    undo,
+    redo,
+    saveCurrentProject,
+    selectedId,
+  }
+
+  const batchDuration = selectedShot?.duration ?? shots[0]?.duration ?? DEFAULT_DURATION
+  const batchAnimation = selectedShot?.animation ?? shots[0]?.animation ?? 'kenBurnsIn'
+
   return (
     <div className={`app pro-editor ${leftSidebarOpen ? 'left-sidebar-open' : 'left-sidebar-closed'} ${rightSidebarOpen ? 'right-sidebar-open' : 'right-sidebar-closed'} ${projectFocusMode ? 'project-panel-focus' : ''} ${agentRunning ? 'agent-running' : ''}`}>
+      {loadingProject ? (
+        <div className="app-loading" aria-busy="true" aria-label="Loading project">
+          <div className="app-loading-spinner" aria-hidden="true" />
+          <span>Loading project…</span>
+        </div>
+      ) : null}
       <Toolbar
         leftSidebarOpen={leftSidebarOpen}
         rightSidebarOpen={rightSidebarOpen}
@@ -1210,6 +1246,7 @@ export default function App() {
         mp4Ready={mp4Ready}
         shotsCount={shots.length}
         projectName={projectName}
+        projectSaving={projectSaving}
         agentRunning={agentRunning}
         agentProgress={agentProgress}
         agentStepLabel={agentActiveStep ? getWorkflowDef(agentActiveStep)?.shortLabel : ''}
@@ -1222,6 +1259,9 @@ export default function App() {
       <ToolsBar
         shotsCount={shots.length}
         platformTemplateId={platformTemplateId}
+        batchDuration={batchDuration}
+        batchAnimation={batchAnimation}
+        toolsKey={activeProjectId ?? 'default'}
         onPlatformTemplateChange={(templateId) => selectPlatformTemplate(templateId)}
         onApplyPreset={applySelectedPreset}
         onRandomizeMix={randomizeMix}
@@ -1496,6 +1536,7 @@ export default function App() {
         missingCount={missingCount}
         message={message}
         projectName={projectName}
+        saving={projectSaving}
         exportWidth={platformTemplate.width}
         exportHeight={platformTemplate.height}
         exportFps={platformTemplate.fps ?? DEFAULT_FPS}
